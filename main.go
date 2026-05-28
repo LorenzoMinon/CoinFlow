@@ -1,0 +1,25 @@
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"os"
+
+	"github.com/LorenzoMinon/coinflow/db"
+	"github.com/LorenzoMinon/coinflow/handlers"
+	"github.com/LorenzoMinon/coinflow/middleware"
+)
+
+func main() {
+	conn, err := db.Connect()
+	if err != nil {
+		fmt.Println("Failed db init conn", err)
+		os.Exit(1)
+	}
+	h := handlers.Handler{DB: conn}
+	http.HandleFunc("GET /coins", h.GetCoins)
+	http.HandleFunc("GET /coins/latest", h.GetLatest)
+	http.HandleFunc("POST /pipeline/run", h.RunPipeline)
+	http.ListenAndServe(":8080", middleware.Logger(http.DefaultServeMux))
+
+}
