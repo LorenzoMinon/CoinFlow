@@ -17,6 +17,7 @@ func main() {
 		os.Exit(1)
 	}
 	h := handlers.Handler{DB: conn}
+	http.Handle("/", http.FileServer(http.Dir("./static")))
 	http.HandleFunc("GET /coins", h.GetCoins)
 	http.HandleFunc("GET /coins/latest", h.GetLatest)
 	http.HandleFunc("POST /pipeline/run", h.RunPipeline)

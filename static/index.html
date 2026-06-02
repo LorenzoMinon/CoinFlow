@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CoinFlow</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        h1 { color: #1F4E79; }
+        button { background: #2E75B6; color: white; border: none; padding: 10px 24px; border-radius: 6px; cursor: pointer; font-size: 15px; }
+        button:hover { background: #1F4E79; }
+        table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+        th { background: #1F4E79; color: white; padding: 10px; text-align: left; }
+        td { padding: 10px; border-bottom: 1px solid #ddd; }
+        .bullish { color: #3B6D11; font-weight: bold; }
+        .bearish { color: #A32D2D; font-weight: bold; }
+        .neutral  { color: #888; }
+        #pipeline-result { margin-top: 16px; font-size: 14px; color: #555; }
+    </style>
+</head>
+<body>
+
+<h1>CoinFlow</h1>
+<button onclick="runPipeline()">Run Pipeline</button>
+<div id="pipeline-result"></div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Coin</th>
+            <th>Price (USD)</th>
+            <th>Change 24h</th>
+            <th>Sentiment</th>
+        </tr>
+    </thead>
+    <tbody id="coins-table"></tbody>
+</table>
+
+<script>
+async function loadCoins() {
+    const resp = await fetch('/coins/latest')
+    const data = await resp.json()
+    const tbody = document.getElementById('coins-table')
+    tbody.innerHTML = ''
+    data.forEach(coin => {
+        tbody.innerHTML += `<tr>
+            <td>${coin.coin_id}</td>
+            <td>$${coin.price_usd.toFixed(2)}</td>
+            <td>${coin.change_24h.toFixed(2)}%</td>
+            <td class="${coin.sentiment}">${coin.sentiment}</td>
+        </tr>`
+    })
+}
+
+async function runPipeline() {
+    document.getElementById('pipeline-result').textContent = 'Running...'
+    const resp = await fetch('/pipeline/run', { method: 'POST' })
+    const data = await resp.json()
+    document.getElementById('pipeline-result').textContent =
+        `Processed: ${data.processed} | Failed: ${data.failed}`
+    loadCoins()
+}
+
+loadCoins()
+</script>
+
+</body>
+</html>
