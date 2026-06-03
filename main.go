@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/LorenzoMinon/coinflow/db"
 	"github.com/LorenzoMinon/coinflow/handlers"
 	"github.com/LorenzoMinon/coinflow/middleware"
+	"github.com/LorenzoMinon/coinflow/scheduler"
 )
 
 func main() {
@@ -21,6 +23,7 @@ func main() {
 	http.HandleFunc("GET /coins", h.GetCoins)
 	http.HandleFunc("GET /coins/latest", h.GetLatest)
 	http.HandleFunc("POST /pipeline/run", h.RunPipeline)
+	scheduler.Start(conn, 1*time.Minute)
 	http.ListenAndServe(":8080", middleware.Logger(http.DefaultServeMux))
 
 }
